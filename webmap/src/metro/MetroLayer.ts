@@ -14,14 +14,15 @@ export class MetroLayer extends L.FeatureGroup {
         for (const line of network.lines) {
             const points = line.paths.map(path => path.map(point => toLatLng(point)));
             const dashArray = line.planned ? '12 8' : undefined;
+            const lineCap = line.planned ? 'butt' : 'round';
             const weight = line.hubLink ? 8 : 4;
             const strokes: L.Layer[] = [
-                L.polyline(points, {color: '#171b24', weight: weight + 4, opacity: 0.8, dashArray, interactive: false}),
-                L.polyline(points, {color: line.color, weight, opacity: 1, dashArray})
+                L.polyline(points, {color: '#171b24', weight: weight + 4, opacity: 0.8, dashArray, lineCap, interactive: false}),
+                L.polyline(points, {color: line.color, weight, opacity: 1, dashArray, lineCap})
                     .bindTooltip(() => this.label(line.name + (line.planned ? ' · план' : '')))
             ];
             if (line.secondaryColor) {
-                strokes.push(L.polyline(points, {color: line.secondaryColor, weight: 3, opacity: 1, dashArray})
+                strokes.push(L.polyline(points, {color: line.secondaryColor, weight: 3, opacity: 1, dashArray, lineCap})
                     .bindTooltip(() => this.label(line.name + (line.planned ? ' · план' : ''))));
             }
             const route = L.featureGroup(strokes);

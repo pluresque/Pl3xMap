@@ -44,6 +44,7 @@ test('planned paths have gaps in both the outline and colored stroke',()=>{
     const planned=polylines.filter(line=>line.points[0][0][0]===-400);
     assert.equal(planned.length,2);
     assert.ok(planned.every(line=>line.options.dashArray==='12 8'));
+    assert.ok(planned.every(line=>line.options.lineCap==='butt'));
 });
 
 test('hub markers are larger and unbuilt stations use a dashed outline',()=>{
