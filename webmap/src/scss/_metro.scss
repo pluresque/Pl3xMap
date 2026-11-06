@@ -1,0 +1,76 @@
+.metro-label-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 2rem;
+  font-size: 1.4rem;
+}
+
+.metro-line {
+  margin: 0 0 2rem;
+
+  .metro-line-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-weight: bold;
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      cursor: pointer;
+    }
+  }
+
+  .metro-swatch {
+    width: 1.8rem;
+    height: 0.5rem;
+    border-radius: 1rem;
+    background: var(--metro-color);
+    flex-shrink: 0;
+  }
+
+  .metro-fit {
+    padding: 0.3rem 0.7rem;
+  }
+
+  .metro-stations {
+    border-left: 0.3rem solid var(--metro-color);
+    padding: 0 0 0 1rem;
+    margin: 1rem 0 0 0.5rem;
+    list-style: none;
+
+    li {
+      display: block;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.7rem;
+      margin-bottom: 0.3rem;
+      font-size: 1.4rem;
+    }
+  }
+}
+
+.leaflet-tooltip.metro-station-label {
+  background: rgba(18, 24, 34, 0.9);
+  color: #f6f8fc;
+  border: 0;
+  border-radius: 0.4rem;
+  padding: 0.3rem 0.6rem;
+  box-shadow: none;
+  font: 600 12px/1.4 var(--ui-font);
+
+  &::before {
+    display: none;
+  }
+}
+
+#sidebar #sidebar__buttons button[hidden] {
+  display: none;
+}
