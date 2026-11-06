@@ -21,7 +21,12 @@ bundle will not overwrite an existing network. Keep a separate backup of it.
 - `stations` contains unique `id`, `name`, `x`, `z`, and optional `y` fields.
 - `lines` contains unique `id`, `name`, six-digit hex `color`, `points`, and
   `stations` fields.
-- Each route point is `[x, z]`. Include bends in their actual order. Station
+- Each route point is `[x, z]`. Include bends in their actual order. Adjacent
+  points must share X or Z, so segments follow the two block axes. Diagonal
+  segments and consecutive duplicate points are rejected. For example, a route
+  from `[0, 0]` to `[100, 100]` needs a real bend such as `[100, 0]` in between.
+  Arbitrarily winding routes can have as many bends as needed. The viewer does
+  not guess which corridor or side of a building the tracks use. Station
   coordinates do not automatically reshape the route.
 - A line's `stations` lists station IDs in travel order. Reuse a station ID on
   multiple lines for an interchange. For a circular line, close the geometry by

@@ -30,6 +30,8 @@ for (const [description, mutate] of [
     ['out-of-world coordinate', data => data.worlds.world.lines[0].points[0][0] = 30000001],
     ['string coordinate', data => data.worlds.world.lines[0].points[0][0] = '-1000'],
     ['invalid color', data => data.worlds.world.lines[0].color = 'url(https://example.com)'],
+    ['diagonal segment', data => data.worlds.world.lines[0].points = [[0, 0], [100, 100]]],
+    ['duplicate route point', data => data.worlds.world.lines[0].points = [[0, 0], [0, 0]]],
     ['incomplete route', data => data.worlds.world.lines[0].points = [[0, 0]]],
     ['wrong version', data => data.version = 2],
 ]) {
@@ -39,3 +41,18 @@ for (const [description, mutate] of [
         assert.throws(() => parseMetroConfig(data));
     });
 }
+
+
+test('preserves every real turn instead of joining stations diagonally', () => {
+    const data = example();
+    const points = [[0, 0], [40, 0], [40, 80], [-20, 80], [-20, 120]];
+    data.worlds.world.lines[0].points = points;
+    const line = parseMetroConfig(data).get('world').lines[0];
+    assert.equal(JSON.stringify(line.points), JSON.stringify(points));
+});
+
+test('accepts a closed orthogonal loop without repeating the stop list', () => {
+    const data = example();
+    data.worlds.world.lines[0].points = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]];
+    assert.equal(parseMetroConfig(data).get('world').lines[0].points.length, 5);
+});

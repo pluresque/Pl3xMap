@@ -86,7 +86,7 @@ export default class MetroTab extends BaseTab {
                 input.checked = true;
                 layer.setLineVisible(line.id, true);
                 this._pl3xmap.playerManager.follow = undefined;
-                layer.focusLine(line.id, this._pl3xmap.map);
+                layer.focusLine(line.id, this._pl3xmap.map, this._content.getBoundingClientRect().width);
             });
             const list = L.DomUtil.create('ol', 'metro-stations', section);
             for (const id of line.stations) {
@@ -97,7 +97,7 @@ export default class MetroTab extends BaseTab {
                 button.textContent = station.name;
                 button.addEventListener('click', () => {
                     this._pl3xmap.playerManager.follow = undefined;
-                    layer.focusStation(station, this._pl3xmap.map);
+                    layer.focusStation(station, this._pl3xmap.map, this._content.getBoundingClientRect().width);
                     network.lines.filter(line => line.stations.includes(id)).forEach(line => {
                         this._lineInputs.get(line.id)!.checked = true;
                     });

@@ -66,16 +66,23 @@ export class MetroLayer extends L.FeatureGroup {
         this.updateStations();
     }
 
-    focusLine(id: string, map: L.Map): void {
+    focusLine(id: string, map: L.Map, sidebarWidth: number = 0): void {
         const bounds = this._routes.get(id)?.getBounds();
-        if (bounds?.isValid()) map.fitBounds(bounds, {padding: [40, 40], maxZoom: map.getMaxZoom()});
+        if (bounds?.isValid()) map.fitBounds(bounds, {
+            paddingTopLeft: [32, 32], paddingBottomRight: [sidebarWidth + 80, 32],
+            maxZoom: map.getMaxZoom()
+        });
     }
 
-    focusStation(station: MetroStation, map: L.Map): void {
+    focusStation(station: MetroStation, map: L.Map, sidebarWidth: number = 0): void {
         for (const line of this.network.lines) {
             if (line.stations.includes(station.id)) this.setLineVisible(line.id, true);
         }
-        map.setView(toLatLng([station.x, station.z]), map.getMaxZoom());
+        const point = toLatLng([station.x, station.z]);
+        map.fitBounds(L.latLngBounds(point, point), {
+            paddingTopLeft: [32, 32], paddingBottomRight: [sidebarWidth + 80, 32],
+            maxZoom: map.getMaxZoom()
+        });
         this._stations.get(station.id)?.openPopup();
     }
 

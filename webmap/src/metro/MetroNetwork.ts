@@ -82,6 +82,16 @@ export function parseMetroConfig(value: unknown): Map<string, MetroNetwork> {
                 }
                 return [coordinate(point[0]), coordinate(point[1])];
             });
+            for (let i = 1; i < points.length; i++) {
+                const [x, z] = points[i];
+                const [previousX, previousZ] = points[i - 1];
+                if (x === previousX && z === previousZ) {
+                    throw new Error(`Repeated route point on ${id}`);
+                }
+                if (x !== previousX && z !== previousZ) {
+                    throw new Error(`Diagonal segment on ${id}: add bend coordinates between route points ${i} and ${i + 1}`);
+                }
+            }
             const stops: string[] = line.stations.map(station => {
                 const stationId = text(station);
                 if (!ids.has(stationId)) {
