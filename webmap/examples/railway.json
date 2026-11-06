@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "worlds": {
+    "world": {
+      "label": "Железная дорога · демо",
+      "stations": [
+        {"id": "north", "name": "Северный", "kind": "hub", "color": "#e05252", "x": -800, "z": -800},
+        {"id": "central", "name": "Центральный", "kind": "hub", "color": "#ec963d", "x": -400, "z": 100},
+        {"id": "pink", "name": "Розовая", "kind": "terminal", "color": "#e98fb6", "x": -1300, "z": -600},
+        {"id": "white", "name": "Белая", "kind": "terminal", "color": "#ebeff5", "planned": true, "x": 100, "z": 300}
+      ],
+      "connections": [
+        {"id": "hubs", "name": "Северный ↔ Центральный", "from": "north", "to": "central", "points": [[-800,-800],[-800,-200],[-400,-200],[-400,100]]},
+        {"id": "pink-branch", "name": "К Розовой", "from": "north", "to": "pink", "points": [[-800,-800],[-1300,-800],[-1300,-600]]},
+        {"id": "white-plan", "name": "К Белой", "from": "central", "to": "white", "planned": true, "points": [[-400,100],[100,100],[100,300]]}
+      ]
+    }
+  }
+}

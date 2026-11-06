@@ -28,6 +28,11 @@ bundle will not overwrite an existing network. Keep a separate backup of it.
   Arbitrarily winding routes can have as many bends as needed. The viewer does
   not guess which corridor or side of a building the tracks use. Station
   coordinates do not automatically reshape the route.
+- For parallel tracks, branches, or disconnected built sections, use `paths`
+  instead of `points`: an array of independent point arrays. For example,
+  `"paths": [[[0, 0], [100, 0]], [[0, 3], [100, 3]]]` draws two parallel tracks
+  without connecting their ends. The same bend checks apply to every path.
+  Crossings do not create stations or imply a rail connection.
 - A line's `stations` lists station IDs in travel order. Reuse a station ID on
   multiple lines for an interchange. For a circular line, close the geometry by
   repeating its first point; list each station only once.
@@ -71,3 +76,31 @@ payloads skip Leaflet marker mutations.
 
 These changes target redundant browser work and HTTP traffic. They have not
 been benchmarked for Minecraft TPS, world rendering throughput, or heap use.
+
+## Railway networks
+
+Use `connections` instead of legacy `lines` for station-to-station networks.
+The two keys cannot be combined in one world. `lines` remains supported.
+See `webmap/examples/railway.json` for an explicitly fictional demonstration.
+
+A station may have `kind: "hub"`, `"terminal"`, or `"landmark"`, plus a hex
+`color`. Leave its kind unset if its network role has not been established.
+Connection `from` and `to` refer to station IDs. If `stations` is omitted it is
+inferred from those endpoints. Branches inherit the terminal's color, regardless
+of endpoint order. Connections between hubs have a thicker stroke and use both
+hub colors. Routes without established endpoints can retain explicit colors and
+station lists without implying a surveyed connection.
+
+Set `planned: true` on a connection for a dashed path, or on a station for a
+hollow dashed marker. Planned geometry is still explicitly specified and must
+have orthogonal bends. `defaultHidden: true` starts an optional connection
+unchecked, for example when a proposed corridor has not been agreed upon.
+Do not present a sketch as an alignment recovered from rail blocks.
+
+Station labels are horizontal, with truncation for long names. At overview zoom
+levels (more than one block per CSS pixel), permanent names are hidden: hover a
+point or click it for details. Closer in, labels try four positions while avoiding
+each other, other visible tooltips, popups and the sidebar. Hubs take priority
+over terminals, then unclassified stations and landmarks. Layout runs in the
+browser after map movement/zoom/resize, coalesced into animation frames. It does
+not fetch additional data or schedule Minecraft work.

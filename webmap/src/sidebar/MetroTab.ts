@@ -16,8 +16,8 @@ export default class MetroTab extends BaseTab {
     constructor(pl3xmap: Pl3xMap) {
         super(pl3xmap, 'metro');
         this._button.appendChild(createSVGIcon('metro'));
-        this._button.title = 'Метро';
-        this._button.setAttribute('aria-label', 'Метро');
+        this._button.title = 'Железная дорога';
+        this._button.setAttribute('aria-label', 'Железная дорога');
         this._button.hidden = true;
 
         this._networks = fetch('metro.json').then(async response => {
@@ -64,23 +64,31 @@ export default class MetroTab extends BaseTab {
         labels.appendChild(document.createTextNode(' Названия станций'));
         labelsInput.addEventListener('change', () => layer.setLabelsVisible(labelsInput.checked));
 
+        if (network.lines.some(line => line.hubLink || line.planned)) {
+            const legend = L.DomUtil.create('p', 'metro-legend', this._content);
+            legend.textContent = 'Толстые связи — между вокзалами. Пунктир — планы.';
+        }
         for (const line of network.lines) {
             const section = L.DomUtil.create('section', 'metro-line', this._content);
             section.style.setProperty('--metro-color', line.color);
+            if (line.planned) section.classList.add('metro-planned');
             const header = L.DomUtil.create('div', 'metro-line-header', section);
             const label = L.DomUtil.create('label', '', header);
             const input = L.DomUtil.create('input', '', label);
             input.type = 'checkbox';
-            input.checked = true;
+            input.checked = !line.defaultHidden;
             this._lineInputs.set(line.id, input);
             input.addEventListener('change', () => layer.setLineVisible(line.id, input.checked));
             const swatch = L.DomUtil.create('span', 'metro-swatch', label);
             swatch.setAttribute('aria-hidden', 'true');
-            label.appendChild(document.createTextNode(line.name));
+            if (line.secondaryColor && !line.planned) {
+                swatch.style.background = `linear-gradient(to bottom, ${line.color} 50%, ${line.secondaryColor} 50%)`;
+            }
+            label.appendChild(document.createTextNode(line.name + (line.planned ? ' · план' : '')));
             const focus = L.DomUtil.create('button', 'metro-fit', header);
             focus.type = 'button';
             focus.textContent = '↗';
-            focus.title = `Показать линию: ${line.name}`;
+            focus.title = `Показать участок: ${line.name}`;
             focus.setAttribute('aria-label', focus.title);
             focus.addEventListener('click', () => {
                 input.checked = true;
@@ -94,13 +102,11 @@ export default class MetroTab extends BaseTab {
                 const item = L.DomUtil.create('li', '', list);
                 const button = L.DomUtil.create('button', '', item);
                 button.type = 'button';
-                button.textContent = station.name;
+                button.textContent = station.name + (station.planned ? ' · план' : '');
                 button.addEventListener('click', () => {
                     this._pl3xmap.playerManager.follow = undefined;
                     layer.focusStation(station, this._pl3xmap.map, this._content.getBoundingClientRect().width);
-                    network.lines.filter(line => line.stations.includes(id)).forEach(line => {
-                        this._lineInputs.get(line.id)!.checked = true;
-                    });
+                    this._lineInputs.forEach((input, id) => input.checked = layer.isLineVisible(id));
                 });
             }
         }

@@ -56,3 +56,80 @@ test('accepts a closed orthogonal loop without repeating the stop list', () => {
     data.worlds.world.lines[0].points = [[0, 0], [40, 0], [40, 40], [0, 40], [0, 0]];
     assert.equal(parseMetroConfig(data).get('world').lines[0].points.length, 5);
 });
+
+
+test('keeps parallel tracks and disconnected sections as separate paths', () => {
+    const data = example();
+    const line = data.worlds.world.lines[0];
+    delete line.points;
+    line.paths = [[[0, 0], [100, 0]], [[0, 3], [100, 3]], [[200, 40], [200, 80]]];
+    const parsed = parseMetroConfig(data).get('world').lines[0];
+    assert.equal(parsed.paths.length, 3);
+    assert.equal(JSON.stringify(parsed.paths), JSON.stringify(line.paths));
+});
+
+test('rejects an invalid secondary path', () => {
+    const data = example();
+    const line = data.worlds.world.lines[0];
+    delete line.points;
+    line.paths = [[[0, 0], [100, 0]], [[0, 3], [100, 4]]];
+    assert.throws(() => parseMetroConfig(data));
+});
+
+test('rejects ambiguous points plus paths input', () => {
+    const data = example();
+    data.worlds.world.lines[0].paths = [[[0, 0], [100, 0]]];
+    assert.throws(() => parseMetroConfig(data));
+});
+
+function railway() {
+    return JSON.parse(fs.readFileSync(path.join(__dirname, '../examples/railway.json')));
+}
+
+test('hub connections use two hub colors and receive thicker styling', () => {
+    const network = parseMetroConfig(railway()).get('world');
+    const link = network.lines.find(line => line.id === 'hubs');
+    assert.equal(link.hubLink, true);
+    assert.equal(link.color, '#e05252');
+    assert.equal(link.secondaryColor, '#ec963d');
+    assert.equal(link.stations.join(','), 'north,central');
+});
+
+test('branches inherit the terminal color regardless of endpoint order', () => {
+    const data = railway();
+    const branch = data.worlds.world.connections[1];
+    branch.from = 'pink'; branch.to = 'north';
+    const parsed = parseMetroConfig(data).get('world').lines[1];
+    assert.equal(parsed.color,'#e98fb6');
+    assert.equal(parsed.hubLink,false);
+});
+
+test('planned paths and planned stations preserve their explicit status', () => {
+    const world = parseMetroConfig(railway()).get('world');
+    assert.equal(world.lines.find(line => line.id === 'white-plan').planned,true);
+    assert.equal(world.lines[0].planned,false);
+    assert.equal(world.stations.find(station => station.id === 'white').planned,true);
+});
+
+test('station colors and connection endpoints are validated', () => {
+    const data = railway();
+    data.worlds.world.stations[0].color = 'red';
+    assert.throws(()=>parseMetroConfig(data));
+    data.worlds.world.stations[0].color = '#ffffff';
+    data.worlds.world.connections[0].to = 'missing';
+    assert.throws(()=>parseMetroConfig(data));
+});
+
+test('a connection must include both of its endpoint stations', () => {
+    const data = railway();
+    data.worlds.world.connections[0].stations = ['north'];
+    assert.throws(()=>parseMetroConfig(data));
+});
+
+test('an approximate proposal can start hidden without removing its geometry',()=>{
+    const data=railway();
+    data.worlds.world.connections[2].defaultHidden=true;
+    const connection=parseMetroConfig(data).get('world').lines[2];
+    assert.equal(connection.defaultHidden,true);
+    assert.equal(connection.paths.length,1);
+});

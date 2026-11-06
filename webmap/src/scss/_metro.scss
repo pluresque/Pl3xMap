@@ -65,6 +65,12 @@
   padding: 0.3rem 0.6rem;
   box-shadow: none;
   font: 600 12px/1.4 var(--ui-font);
+  visibility: hidden;
+  width: max-content;
+  max-width: 22rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   &::before {
     display: none;
@@ -73,4 +79,18 @@
 
 #sidebar #sidebar__buttons button[hidden] {
   display: none;
+}
+
+.metro-legend {
+  font-size: 1.3rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem;
+  opacity: 0.8;
+}
+
+.metro-planned .metro-swatch {
+  background: none;
+  height: 0;
+  border-top: 0.3rem dashed var(--metro-color);
+  border-radius: 0;
 }
