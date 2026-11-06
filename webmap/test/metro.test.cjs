@@ -30,6 +30,9 @@ for (const [description, mutate] of [
     ['out-of-world coordinate', data => data.worlds.world.lines[0].points[0][0] = 30000001],
     ['string coordinate', data => data.worlds.world.lines[0].points[0][0] = '-1000'],
     ['invalid color', data => data.worlds.world.lines[0].color = 'url(https://example.com)'],
+    ['negative corner radius', data => data.worlds.world.lines[0].cornerRadius = -1],
+    ['excessive corner radius', data => data.worlds.world.lines[0].cornerRadius = 257],
+    ['invalid corner radius', data => data.worlds.world.lines[0].cornerRadius = '20'],
     ['diagonal segment', data => data.worlds.world.lines[0].points = [[0, 0], [100, 100]]],
     ['duplicate route point', data => data.worlds.world.lines[0].points = [[0, 0], [0, 0]]],
     ['incomplete route', data => data.worlds.world.lines[0].points = [[0, 0]]],
@@ -49,6 +52,14 @@ test('preserves every real turn instead of joining stations diagonally', () => {
     data.worlds.world.lines[0].points = points;
     const line = parseMetroConfig(data).get('world').lines[0];
     assert.equal(JSON.stringify(line.points), JSON.stringify(points));
+});
+
+test('optional rounding preserves the authored orthogonal corridor', () => {
+    const data = example();
+    data.worlds.world.lines[0].cornerRadius = 48;
+    const line = parseMetroConfig(data).get('world').lines[0];
+    assert.equal(line.cornerRadius,48);
+    assert.equal(JSON.stringify(line.points),JSON.stringify(data.worlds.world.lines[0].points));
 });
 
 test('accepts a closed orthogonal loop without repeating the stop list', () => {

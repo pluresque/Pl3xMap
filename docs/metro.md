@@ -97,6 +97,12 @@ have orthogonal bends. `defaultHidden: true` starts an optional connection
 unchecked, for example when a proposed corridor has not been agreed upon.
 Do not present a sketch as an alignment recovered from rail blocks.
 
+Optional `cornerRadius` rounds explicitly authored orthogonal bends, in world
+blocks (0–256; default 0). It keeps endpoints and limits each curve to half of
+the neighboring segments. Use it for schematic planning corridors; leave it at
+zero to retain the vertices of a surveyed rail path. Independent `paths` are
+rounded separately and are never joined through an empty gap.
+
 Station labels are horizontal, with truncation for long names. At overview zoom
 levels (more than one block per CSS pixel), permanent names are hidden: hover a
 point or click it for details. Closer in, labels try four positions while avoiding
@@ -104,3 +110,32 @@ each other, other visible tooltips, popups and the sidebar. Hubs take priority
 over terminals, then unclassified stations and landmarks. Layout runs in the
 browser after map movement/zoom/resize, coalesced into animation frames. It does
 not fetch additional data or schedule Minecraft work.
+
+## Route browser
+
+The railway panel has search by station or player name, built/planned filters,
+individual visibility buttons, a global plans toggle and a fit-network action.
+Selecting a row or clicking its path emphasizes that route without hiding the
+rest of the network. Station actions and details appear in the selection card,
+instead of repeating every endpoint throughout the list.
+
+On screens up to 600 CSS pixels wide the panel becomes a bottom sheet. Selecting
+a route switches it to a compact detail card and fits the path above it. The
+fit-network action closes the mobile sheet. Wider screens use a side panel and
+reserve its width when fitting a route.
+
+Normal map colors are the default. The optional Scheme view mutes background
+tiles; it does not change the rendered world files. View, label and global plan
+preferences are stored in local storage when available. Broken or disabled
+storage falls back to defaults. `description` can be supplied on a station or
+connection for details shown when selected. Station popups include coordinates
+and a copy action where the browser supports clipboard writes.
+
+The explicit **Названия станций** switch stays available in both the list and
+the compact mobile route card. It hides permanent station names while keeping
+individual names available on hover or in a popup.
+
+For a network diagram, provide one centerline per rail corridor. Keep both
+surveyed tracks in a separate audit artifact if needed. Independent `paths`
+remain useful for branches and disconnected pieces, rather than drawing both
+rails as separate network lines.

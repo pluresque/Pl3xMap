@@ -7,6 +7,7 @@ export interface MetroStation {
     kind?: 'hub' | 'terminal' | 'landmark';
     color?: string;
     planned: boolean;
+    description?: string;
 }
 
 export interface MetroLine {
@@ -22,6 +23,8 @@ export interface MetroLine {
     defaultHidden: boolean;
     secondaryColor?: string;
     planned: boolean;
+    description?: string;
+    cornerRadius: number;
 }
 
 export interface MetroNetwork {
@@ -89,6 +92,7 @@ export function parseMetroConfig(value: unknown): Map<string, MetroNetwork> {
             return {
                 id: text(station.id), name: text(station.name), kind: kind as MetroStation['kind'],
                 color: color(station.color), planned: planned(station.planned),
+                description: station.description === undefined ? undefined : text(station.description),
                 x: coordinate(station.x), z: coordinate(station.z),
                 ...(station.y === undefined ? {} : {y: coordinate(station.y)})
             };
@@ -102,6 +106,10 @@ export function parseMetroConfig(value: unknown): Map<string, MetroNetwork> {
             const line = object(raw);
             const id = text(line.id);
             const explicitColor = color(line.color);
+            const cornerRadius = line.cornerRadius ?? 0;
+            if (typeof cornerRadius !== 'number' || !Number.isFinite(cornerRadius) || cornerRadius < 0 || cornerRadius > 256) {
+                throw new Error(`Invalid corner radius for ${id}`);
+            }
             if (lineIds.has(id)) throw new Error(`Duplicate connection ID in ${world}`);
             const from = line.from === undefined ? undefined : text(line.from);
             const to = line.to === undefined ? undefined : text(line.to);
@@ -160,7 +168,8 @@ export function parseMetroConfig(value: unknown): Map<string, MetroNetwork> {
                 throw new Error(`Connection stops must include both endpoints for ${id}`);
             }
             return {id, name: text(line.name), color: routeColor, secondaryColor, hubLink,
-                from, to, defaultHidden: planned(line.defaultHidden), planned: planned(line.planned), points: paths[0], paths, stations: stops};
+                from, to, defaultHidden: planned(line.defaultHidden), planned: planned(line.planned),
+                description: line.description === undefined ? undefined : text(line.description), cornerRadius, points: paths[0], paths, stations: stops};
         });
         result.set(world, {label: data.label === undefined ? 'Metro' : text(data.label), lines, stations});
     }

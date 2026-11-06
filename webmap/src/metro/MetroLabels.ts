@@ -10,6 +10,7 @@ export class MetroLabels {
     private _zooming = false;
     private readonly _zoomEnd = (): void => { this._zooming = false; this.refresh(); };
     private _hovered?: string;
+    private _selected?: Set<string>;
     private _sidebar?: Element | null;
     private readonly _refresh = (): void => this.refresh();
     private readonly _hide = (): void => {
@@ -49,6 +50,11 @@ export class MetroLabels {
         this._zooming = false;
     }
 
+    setSelection(stations?: Set<string>): void {
+        this._selected = stations;
+        this.refresh();
+    }
+
     setVisible(visible: boolean): void {
         this._showLabels = visible;
         this.refresh();
@@ -82,6 +88,7 @@ export class MetroLabels {
             if (!map.hasLayer(marker) || !element) continue;
             elements.set(station.id, element);
             if (!showPersistent && this._hovered !== station.id) continue;
+            if (this._selected && !this._selected.has(station.id) && this._hovered !== station.id) continue;
             const point = map.latLngToContainerPoint(marker.getLatLng());
             if (point.x < 0 || point.y < 0 || point.x > bounds.width || point.y > bounds.height) continue;
             const priority = this._hovered === station.id ? -10 : station.kind === 'hub' ? 0

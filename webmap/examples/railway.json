@@ -12,7 +12,7 @@
       "connections": [
         {"id": "hubs", "name": "Северный ↔ Центральный", "from": "north", "to": "central", "points": [[-800,-800],[-800,-200],[-400,-200],[-400,100]]},
         {"id": "pink-branch", "name": "К Розовой", "from": "north", "to": "pink", "points": [[-800,-800],[-1300,-800],[-1300,-600]]},
-        {"id": "white-plan", "name": "К Белой", "from": "central", "to": "white", "planned": true, "points": [[-400,100],[100,100],[100,300]]}
+        {"id": "white-plan", "name": "К Белой", "from": "central", "to": "white", "planned": true, "cornerRadius": 48, "points": [[-400,100],[100,100],[100,300]]}
       ]
     }
   }
