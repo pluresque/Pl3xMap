@@ -5,7 +5,9 @@
   "main": "pl3xmap.js",
   "scripts": {
     "build": "webpack",
-    "server": "webpack-dev-server"
+    "server": "webpack-dev-server",
+    "test": "node --test test/*.test.cjs",
+    "typecheck": "tsc --noEmit"
   },
   "author": "BillyGalbreath",
   "license": "MIT",

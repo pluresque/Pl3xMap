@@ -11,7 +11,7 @@ import {Rectangle} from "../marker/Rectangle";
 import {Marker, Type} from "../marker/Marker";
 import {MarkerOptions, Options} from "../marker/options/MarkerOptions";
 import {World} from "../world/World";
-import {fireCustomEvent, getJSON, getOrCreatePane, insertCss, isset, removeCss} from "../util/Util";
+import {fireCustomEvent, getOrCreatePane, insertCss, isset, removeCss} from "../util/Util";
 import {Tooltip} from "../marker/options/Tooltip";
 import {Popup} from "../marker/options/Popup";
 
@@ -47,7 +47,11 @@ export class MarkerLayer extends L.LayerGroup {
 
     private readonly _markers: Map<string, Marker> = new Map();
 
-    private _timestamp: number = (new Date()).getTime();
+    private _timestamp: number = 0;
+    private _unloaded: boolean = false;
+    private _request?: AbortController;
+    private _revision: number = 0;
+    private _lastData?: string;
     private _timer: NodeJS.Timeout | undefined;
 
     constructor(key: string, label: string, interval: number, showControls: boolean, defaultHidden: boolean, priority: number, zIndex: number, pane: string, css: string) {
@@ -123,39 +127,60 @@ export class MarkerLayer extends L.LayerGroup {
         this._timestamp = timestamp;
     }
 
-    update(world: World, updateOverride?: boolean): void {
-        if (updateOverride === undefined) {
-            const time = (new Date()).getTime() - this._timestamp;
-            // console.log(world.eventSource?.readyState);
-            // console.log(`${this._key}: world.eventSource?.readyState === EventSource.OPEN is ${world.eventSource?.readyState === EventSource.OPEN}`);
-            // console.log(`${this._key}: time (${time}) < 1000 is ${time < 1000}`);
-            if (world.eventSource?.readyState === EventSource.OPEN && time < 1000) {
-                // console.log(this._key + ": source is open and timestamp is " + time + " which is less than 1000");
-                return;
+    async update(world: World, updateOverride?: boolean): Promise<void> {
+        clearTimeout(this._timer);
+        if (this._unloaded || this._request) return;
+
+        const schedule = (): void => {
+            if (!this._unloaded) {
+                clearTimeout(this._timer);
+                this._timer = setTimeout(() => void this.update(world), this._updateInterval);
             }
+        };
+        if (!updateOverride && world.eventSource?.readyState === EventSource.OPEN
+            && Date.now() - this._timestamp < this._updateInterval) {
+            schedule();
+            return;
         }
 
-        getJSON(`tiles/${world.name}/markers/${this._key}.json`)
-            .then((json): void => this.updateMarkers(json, world));
+        const request = this._request = new AbortController();
+        const revision = this._revision;
+        try {
+            const response = await fetch(`tiles/${world.name}/markers/${this._key}.json`, {
+                signal: request.signal
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const json = await response.json();
+            if (!this._unloaded && revision === this._revision) {
+                this.updateMarkers(json, world);
+            }
+        } catch (error) {
+            if (!request.signal.aborted) console.warn(`Could not update marker layer ${this._key}`, error);
+        } finally {
+            this._request = undefined;
+            schedule();
+        }
     }
 
     updateMarkers(json: any, world: World): void {
-        // console.log(`updating ${this._key} with update interval of ${this._updateInterval}`);
-        //this.clearLayers(); // do not just clear markers, remove the ones that are missing
+        if (this._unloaded || !Array.isArray(json)) return;
+        this._revision++;
+        const serialized = JSON.stringify(json);
+        if (serialized === this._lastData) return;
+        this._lastData = serialized;
         const toRemove: Set<string> = new Set(this._markers.keys());
 
-        for (const index in Object.keys(json)) {
-            const existing: Marker | undefined = this._markers.get(json[index].data.key);
+        for (const data of json) {
+            const existing: Marker | undefined = this._markers.get(data.data.key);
             if (existing) {
                 // update
-                const data = json[index];
                 const options: MarkerOptions | undefined = isset(data.options) ? new MarkerOptions(data.options) : undefined;
                 existing.update(data.data, options);
                 // do not remove this marker
                 toRemove.delete(existing.key);
             } else {
                 // new marker
-                const marker: Marker | undefined = this.parseMarker(json[index]);
+                const marker: Marker | undefined = this.parseMarker(data);
                 if (marker) {
                     this._markers.set(marker.key, marker);
                     marker.marker.addTo(this);
@@ -175,11 +200,11 @@ export class MarkerLayer extends L.LayerGroup {
                 fireCustomEvent('markerremoved', marker);
             }
         });
-
-        this._timer = setTimeout(() => this.update(world), this._updateInterval);
     }
 
     unload(): void {
+        this._unloaded = true;
+        this._request?.abort();
         clearTimeout(this._timer);
         removeCss(this._key);
         this._markers.clear();

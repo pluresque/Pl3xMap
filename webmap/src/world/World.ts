@@ -19,6 +19,7 @@ export class World {
 
     private _rendererLayers: Map<Renderer, DoubleTileLayer> = new Map();
     private _markerLayers: MarkerLayer[] = [];
+    private _markerGeneration: number = 0;
 
     private _biomePalette: Map<number, string> = new Map();
     private _blockInfo: Map<number, Map<string, BlockInfo>> = new Map();
@@ -36,14 +37,12 @@ export class World {
 
     private initSSE() {
         this._eventSource = new EventSource("sse/" + this.settings.name);
-        console.debug("initializing " + this.settings.name + " sse");
 
         this._eventSource.addEventListener("markers", (ev: Event) => {
             const messageEvent = (ev as MessageEvent);
             const json: any = JSON.parse(messageEvent.data);
             const key: string = json.key;
             const markers: any[] = json.markers;
-            console.debug(json);
 
             if (messageEvent.data.length === 0) return;
 
@@ -93,9 +92,9 @@ export class World {
 
     public unload(): void {
         clearTimeout(this._timer);
+        this._markerGeneration++;
         // unload and clear markers
         this._eventSource?.close();
-        console.debug("closing " + this.settings.name + " sse");
         this._markerLayers.forEach((layer: MarkerLayer) => layer.unload())
         this._markerLayers = [];
         // unload renderer layer
@@ -105,13 +104,18 @@ export class World {
     }
 
     public loadMarkers(): void {
+        const generation = ++this._markerGeneration;
+        this._eventSource?.close();
+        this._markerLayers.forEach(layer => layer.unload());
+        this._markerLayers = [];
         this.initSSE();
         getJSON(`tiles/${this.name}/markers.json`)
             .then((json): void => {
+                if (generation !== this._markerGeneration || !Array.isArray(json)) return;
                 (json as MarkerLayer[]).forEach((layer: MarkerLayer): void => {
                     const markerLayer: MarkerLayer = new MarkerLayer(layer.key, layer.label, layer.updateInterval, layer.showControls, layer.defaultHidden, layer.priority, layer.zIndex, layer.pane, layer.css);
                     this._markerLayers.push(markerLayer);
-                    markerLayer.update(this, true);
+                    void markerLayer.update(this, true);
                 });
             });
     }
