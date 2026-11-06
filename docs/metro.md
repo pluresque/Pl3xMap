@@ -83,6 +83,9 @@ when a standalone server previously used heuristic freshness. Unchanged data
 can still use conditional HTTP responses. When serving compressed map files
 directly, set `Content-Encoding: gzip` on `*.gz` and proxy `/sse/*` to the
 internal map server to retain live updates.
+JSON and binary block metadata also recognize undecoded gzip bodies. Browsers
+with native gzip stream support can read those responses from static hosts or
+embedded viewers; normally HTTP-decoded responses pass through unchanged.
 
 ## Railway networks
 

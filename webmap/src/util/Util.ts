@@ -2,6 +2,7 @@ import * as L from "leaflet";
 import {Pl3xMap} from "../Pl3xMap";
 import {Point} from "./Point";
 import Pl3xMapLeafletMap from "../map/Pl3xMapLeafletMap";
+import {readMapBytes, readMapJSON} from './MapResponse';
 
 export function createSVGIcon(icon: string): DocumentFragment {
     const template = L.DomUtil.create('template');
@@ -17,7 +18,7 @@ export function getJSON(url: string): Promise<any> {
         }
     }).then(async (res: Response): Promise<any> => {
         if (res.ok) {
-            return await res.json();
+            return await readMapJSON(res);
         }
     });
 }
@@ -30,7 +31,7 @@ export function getBytes(url: string): Promise<ArrayBuffer | undefined> {
         }
     }).then(async (res: Response): Promise<ArrayBuffer | undefined> => {
         if (res.ok) {
-            return await res.arrayBuffer();
+            return await readMapBytes(res);
         }
     });
 }
