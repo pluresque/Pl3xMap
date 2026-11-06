@@ -85,7 +85,7 @@ export class ReversedZoomTileLayer extends L.TileLayer {
         // Retrieve image via a fetch instead of just setting the src
         // This works around the fact that browsers usually don't make a request for an image that was previously loaded,
         // without resorting to changing the URL (which would break caching).
-        fetch(this.getTileUrl(coords))
+        fetch(this.getTileUrl(coords), {cache: 'no-cache'})
             .then((res: Response): void => {
                 // Call leaflet's error handler if request fails for some reason
                 if (!res.ok) {

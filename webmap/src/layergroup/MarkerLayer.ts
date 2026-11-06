@@ -147,6 +147,7 @@ export class MarkerLayer extends L.LayerGroup {
         const revision = this._revision;
         try {
             const response = await fetch(`tiles/${world.name}/markers/${this._key}.json`, {
+                cache: 'no-cache',
                 signal: request.signal
             });
             if (!response.ok) throw new Error(`HTTP ${response.status}`);

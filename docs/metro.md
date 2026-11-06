@@ -77,6 +77,13 @@ payloads skip Leaflet marker mutations.
 These changes target redundant browser work and HTTP traffic. They have not
 been benchmarked for Minecraft TPS, world rendering throughput, or heap use.
 
+Map data requests revalidate the HTTP cache, including tiles, marker payloads
+and the railway configuration. This keeps browser caching from masking updates
+when a standalone server previously used heuristic freshness. Unchanged data
+can still use conditional HTTP responses. When serving compressed map files
+directly, set `Content-Encoding: gzip` on `*.gz` and proxy `/sse/*` to the
+internal map server to retain live updates.
+
 ## Railway networks
 
 Use `connections` instead of legacy `lines` for station-to-station networks.

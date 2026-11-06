@@ -11,6 +11,7 @@ export function createSVGIcon(icon: string): DocumentFragment {
 
 export function getJSON(url: string): Promise<any> {
     return fetch(url, {
+        cache: 'no-cache',
         headers: {
             "Content-Disposition": "inline"
         }
@@ -23,6 +24,7 @@ export function getJSON(url: string): Promise<any> {
 
 export function getBytes(url: string): Promise<ArrayBuffer | undefined> {
     return fetch(url, {
+        cache: 'no-cache',
         headers: {
             "Content-Disposition": "inline"
         }

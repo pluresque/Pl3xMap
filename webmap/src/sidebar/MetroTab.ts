@@ -42,7 +42,7 @@ export default class MetroTab extends BaseTab {
         let saved: string | null = null;
         try { saved = localStorage.getItem('pl3xmap.railway.preferences'); } catch { /* storage is optional */ }
         this._preferences = parsePreferences(saved);
-        this._networks = fetch('metro.json').then(async response => {
+        this._networks = fetch('metro.json', {cache: 'no-cache'}).then(async response => {
             if (response.status === 404) return new Map<string, MetroNetwork>();
             if (!response.ok) throw new Error(`Railway configuration: HTTP ${response.status}`);
             return parseMetroConfig(await response.json());
