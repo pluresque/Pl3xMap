@@ -1,0 +1,396 @@
+{
+  "date": "2026-11-07",
+  "workload": {
+    "command": "pl3xmap radiusrender world 512 -768 -768",
+    "regions": 9,
+    "region_x": [
+      -3,
+      -2,
+      -1
+    ],
+    "region_z": [
+      -3,
+      -2,
+      -1
+    ],
+    "occupied_chunk_slots": 9216,
+    "players": 0,
+    "host_logical_cpus": 4,
+    "render_workers": 2,
+    "renderers": [
+      "vintage_story",
+      "blockinfo"
+    ],
+    "format": "png",
+    "tile_quality": 0.0,
+    "biome_blend": 3,
+    "zoom_levels": [
+      0,
+      1,
+      2,
+      3
+    ]
+  },
+  "build": {
+    "baseline_core_commit": "9876e4b",
+    "renderer_patch_commit": "adf332dee1a5cfc1f036cea2036bf64e48c4c2ca",
+    "deployed_build_commit": "4a329a6",
+    "baseline_jar_sha256": "d40b44c5fd64fc316c72112f4efc2448164b00f41bf87c74120aaa283ec2d757",
+    "patched_jar_sha256": "3c800df0a12f5d63b18c290d374b99203fb45a54535910da6dad01ca8f240ffc",
+    "dependency_and_resource_payloads_unchanged": true
+  },
+  "runs": {
+    "before-batch-cpu-1": {
+      "plugin_commit": "9876e4b",
+      "renderer_worker_cpu_seconds": 14.25,
+      "profile_window_java_cpu_seconds": 17.64,
+      "command_to_idle_observation_seconds": 11.180222034454346,
+      "worker_busy_enclosing_interval_seconds_approx": 9.000752694904804,
+      "active_renderer_sampled_ms": 13880.0,
+      "encoding_sampled_ms": 5690.0,
+      "stages": [
+        {
+          "stage": "Load region / NBT / populate",
+          "weight": 4190.0,
+          "percent": 30.187
+        },
+        {
+          "stage": "PNG encoding",
+          "weight": 3785.0,
+          "percent": 27.269
+        },
+        {
+          "stage": "Scan / colors / lighting / biome blend",
+          "weight": 3140.0,
+          "percent": 22.622
+        },
+        {
+          "stage": "Block metadata gzip encoding",
+          "weight": 1905.0,
+          "percent": 13.725
+        },
+        {
+          "stage": "Other image/zoom read-write work",
+          "weight": 845.0,
+          "percent": 6.088
+        },
+        {
+          "stage": "Allocate/read previous metadata",
+          "weight": 15.0,
+          "percent": 0.108
+        }
+      ],
+      "java_write_bytes_delta": 36651008,
+      "java_wchar_delta": 31675848,
+      "rss_peak_mib": 4926.55078125,
+      "heap_reported_used_bytes": 2273312768,
+      "max_5s_reported_tick_ms": 10.3,
+      "profile_gc": {
+        "G1 Young Generation": {
+          "count": 1,
+          "average_ms": 90.0
+        },
+        "G1 Concurrent GC": {
+          "count": 0,
+          "average_ms": 0.0
+        },
+        "G1 Old Generation": {
+          "count": 0,
+          "average_ms": 0.0
+        }
+      },
+      "successful_tile_writes_observed": null
+    },
+    "before-batch-cpu-2": {
+      "plugin_commit": "9876e4b",
+      "renderer_worker_cpu_seconds": 15.37,
+      "profile_window_java_cpu_seconds": 21.76,
+      "command_to_idle_observation_seconds": 13.17060399055481,
+      "worker_busy_enclosing_interval_seconds_approx": 10.002084418898448,
+      "active_renderer_sampled_ms": 15265.0,
+      "encoding_sampled_ms": 6015.0,
+      "stages": [
+        {
+          "stage": "Load region / NBT / populate",
+          "weight": 4885.0,
+          "percent": 32.001
+        },
+        {
+          "stage": "PNG encoding",
+          "weight": 3945.0,
+          "percent": 25.843
+        },
+        {
+          "stage": "Scan / colors / lighting / biome blend",
+          "weight": 3335.0,
+          "percent": 21.847
+        },
+        {
+          "stage": "Block metadata gzip encoding",
+          "weight": 2070.0,
+          "percent": 13.56
+        },
+        {
+          "stage": "Other image/zoom read-write work",
+          "weight": 890.0,
+          "percent": 5.83
+        },
+        {
+          "stage": "Allocate/read previous metadata",
+          "weight": 140.0,
+          "percent": 0.917
+        }
+      ],
+      "java_write_bytes_delta": 36970496,
+      "java_wchar_delta": 31693930,
+      "rss_peak_mib": 4927.05859375,
+      "heap_reported_used_bytes": 1946157056,
+      "max_5s_reported_tick_ms": 13.7,
+      "profile_gc": {
+        "G1 Young Generation": {
+          "count": 1,
+          "average_ms": 134.0
+        },
+        "G1 Concurrent GC": {
+          "count": 2,
+          "average_ms": 34.5
+        },
+        "G1 Old Generation": {
+          "count": 0,
+          "average_ms": 0.0
+        }
+      },
+      "successful_tile_writes_observed": null
+    },
+    "after-batch-cpu-1": {
+      "plugin_commit": "4a329a6",
+      "renderer_worker_cpu_seconds": 10.81,
+      "profile_window_java_cpu_seconds": 14.54,
+      "command_to_idle_observation_seconds": 11.17101502418518,
+      "worker_busy_enclosing_interval_seconds_approx": 6.995197754818946,
+      "active_renderer_sampled_ms": 10545.0,
+      "encoding_sampled_ms": 2480.0,
+      "stages": [
+        {
+          "stage": "Load region / NBT / populate",
+          "weight": 4060.0,
+          "percent": 38.502
+        },
+        {
+          "stage": "Scan / colors / lighting / biome blend",
+          "weight": 3470.0,
+          "percent": 32.907
+        },
+        {
+          "stage": "PNG encoding",
+          "weight": 1855.0,
+          "percent": 17.591
+        },
+        {
+          "stage": "Block metadata gzip encoding",
+          "weight": 625.0,
+          "percent": 5.927
+        },
+        {
+          "stage": "Other image/zoom read-write work",
+          "weight": 510.0,
+          "percent": 4.836
+        },
+        {
+          "stage": "Allocate/read previous metadata",
+          "weight": 25.0,
+          "percent": 0.237
+        }
+      ],
+      "java_write_bytes_delta": 13742080,
+      "java_wchar_delta": 9235160,
+      "rss_peak_mib": 5944.0859375,
+      "heap_reported_used_bytes": 2340421632,
+      "max_5s_reported_tick_ms": 11.3,
+      "profile_gc": {
+        "G1 Young Generation": {
+          "count": 1,
+          "average_ms": 153.0
+        },
+        "G1 Concurrent GC": {
+          "count": 0,
+          "average_ms": 0.0
+        },
+        "G1 Old Generation": {
+          "count": 0,
+          "average_ms": 0.0
+        }
+      },
+      "successful_tile_writes_observed": 30,
+      "successful_tile_writes_by_zoom_and_format": {
+        "0/blockinfo": 9,
+        "0/vintage_story": 9,
+        "1/blockinfo": 4,
+        "1/vintage_story": 4,
+        "2/blockinfo": 1,
+        "2/vintage_story": 1,
+        "3/blockinfo": 1,
+        "3/vintage_story": 1
+      }
+    },
+    "after-batch-cpu-2": {
+      "plugin_commit": "4a329a6",
+      "renderer_worker_cpu_seconds": 11.66,
+      "profile_window_java_cpu_seconds": 15.87,
+      "command_to_idle_observation_seconds": 11.153430223464966,
+      "worker_busy_enclosing_interval_seconds_approx": 7.998659423086792,
+      "active_renderer_sampled_ms": 11325.0,
+      "encoding_sampled_ms": 2480.0,
+      "stages": [
+        {
+          "stage": "Load region / NBT / populate",
+          "weight": 4495.0,
+          "percent": 39.691
+        },
+        {
+          "stage": "Scan / colors / lighting / biome blend",
+          "weight": 3810.0,
+          "percent": 33.642
+        },
+        {
+          "stage": "PNG encoding",
+          "weight": 1855.0,
+          "percent": 16.38
+        },
+        {
+          "stage": "Block metadata gzip encoding",
+          "weight": 625.0,
+          "percent": 5.519
+        },
+        {
+          "stage": "Other image/zoom read-write work",
+          "weight": 530.0,
+          "percent": 4.68
+        },
+        {
+          "stage": "Allocate/read previous metadata",
+          "weight": 10.0,
+          "percent": 0.088
+        }
+      ],
+      "java_write_bytes_delta": 14151680,
+      "java_wchar_delta": 9253629,
+      "rss_peak_mib": 5945.09765625,
+      "heap_reported_used_bytes": 2550136832,
+      "max_5s_reported_tick_ms": 17.5,
+      "profile_gc": {
+        "G1 Concurrent GC": {
+          "count": 0,
+          "average_ms": 0.0
+        },
+        "G1 Young Generation": {
+          "count": 1,
+          "average_ms": 157.0
+        },
+        "G1 Old Generation": {
+          "count": 0,
+          "average_ms": 0.0
+        }
+      },
+      "successful_tile_writes_observed": 30,
+      "successful_tile_writes_by_zoom_and_format": {
+        "0/blockinfo": 9,
+        "0/vintage_story": 9,
+        "1/blockinfo": 4,
+        "1/vintage_story": 4,
+        "2/blockinfo": 1,
+        "2/vintage_story": 1,
+        "3/blockinfo": 1,
+        "3/vintage_story": 1
+      }
+    }
+  },
+  "averages": {
+    "before": {
+      "renderer_worker_cpu_seconds": 14.809999999999999,
+      "profile_window_java_cpu_seconds": 19.700000000000003,
+      "command_to_idle_observation_seconds": 12.175413012504578,
+      "active_renderer_sampled_ms": 14572.5,
+      "encoding_sampled_ms": 5852.5,
+      "java_write_bytes_delta": 36810752,
+      "java_wchar_delta": 31684889,
+      "rss_peak_mib": 4926.8046875
+    },
+    "after": {
+      "renderer_worker_cpu_seconds": 11.235,
+      "profile_window_java_cpu_seconds": 15.204999999999998,
+      "command_to_idle_observation_seconds": 11.162222623825073,
+      "active_renderer_sampled_ms": 10935.0,
+      "encoding_sampled_ms": 2480.0,
+      "java_write_bytes_delta": 13946880,
+      "java_wchar_delta": 9244394.5,
+      "rss_peak_mib": 5944.591796875
+    }
+  },
+  "reductions_percent": {
+    "renderer_worker_cpu_seconds": 24.139095205941928,
+    "active_renderer_sampled_ms": 24.961399897066393,
+    "encoding_sampled_ms": 57.62494660401538,
+    "java_write_bytes_delta": 62.11193946812061,
+    "java_wchar_delta": 70.82396438251686
+  },
+  "tile_writes": {
+    "before_per_format_by_zoom": [
+      9,
+      9,
+      9,
+      9
+    ],
+    "after_per_format_by_zoom": [
+      9,
+      4,
+      1,
+      1
+    ],
+    "before_all_formats": 72,
+    "after_all_formats": 30,
+    "parent_before_all_formats": 54,
+    "parent_after_all_formats": 12,
+    "before_method": "Calculated from unchanged original save loops and these region coordinates.",
+    "after_method": "Observed successful atomic rename events with Linux inotify for every warm and measured patched run."
+  },
+  "quality": {
+    "png_files": 15,
+    "rgba_pixels_compared": 3932160,
+    "metadata_files": 15,
+    "metadata_bytes_compared": 15728820,
+    "decoded_differences": [],
+    "encoded_differences": [],
+    "config_unchanged": true,
+    "metro_unchanged": true,
+    "config_sha256": "e2cd842bbd1392c4e9b319b582ad7bc7125e35b81326538d50d5cafb8063cd63",
+    "region_hash_changes": [
+      "r.-2.-2.mca"
+    ]
+  },
+  "allocation_sampling": {
+    "before_estimated_bytes": 1544028013.0,
+    "after_estimated_bytes": 1524103715.0,
+    "method": "One approximately 512 KiB allocation-sampling profile per build; small differences are not evidence of a material allocation reduction."
+  },
+  "heap_committed_bytes": {
+    "before": 4294967296,
+    "after": 5620367360
+  },
+  "validation": {
+    "contract_assertions_passed": 178,
+    "ci": "https://github.com/pluresque/Pl3xMap/actions/runs/42323913608",
+    "production": "Patched JAR running; container healthy, renderers idle, background spark profiler restored.",
+    "max_5s_tick_ms_after": 17.5
+  },
+  "limitations": [
+    "Short fixed-area test without online players; filesystem cache was not cleared.",
+    "Two original CPU profiles from a long-lived JVM versus two patched CPU profiles after restart and two warmup renders.",
+    "Command-to-idle contains scheduling delay and 2 second status polling; it is not an isolated render timer.",
+    "Active wall-sampled weights include locks and file I/O; renderer CPU comes separately from per-thread proc counters at 100 Hz.",
+    "A region file changed during graceful server restart/save; every affected output remained byte-identical.",
+    "RSS rose from about 4.81 to 5.81 GiB. Committed Java heap rose from 4.00 to 5.23 GiB; memory benefit is not claimed and the restart is a confounder.",
+    "Queued source-reference estimates are bounded to 64 MiB across two queues; full-world rendering may flush and recompress a parent again after eviction.",
+    "Base tiles update immediately; parent tiles update on eviction or batch completion."
+  ]
+}

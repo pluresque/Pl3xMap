@@ -1,4 +1,64 @@
-# Server render baseline
+# Server render performance
+
+## Parent-write comparison, 2026-11-07
+
+Parent write coalescing reduced renderer worker CPU by **24.1%** on the
+same nine-region workload. All 15 PNGs and 15 block-info files remained
+byte-identical, including their entire decoded payloads and the portions of
+parent tiles outside the rendered area. Compression, resolution and color
+settings did not change.
+
+| Metric | Before | After |
+| --- | ---: | ---: |
+| Renderer worker CPU, mean of two runs | 14.81 CPU-s | 11.24 CPU-s |
+| PNG + GZIP active wall samples, mean | 5.85 s | 2.48 s |
+| Tile saves, both formats | 72 | 30 |
+| Parent tile saves, both formats | 54 | 12 |
+| Java `/proc/io` write-bytes delta, mean per profile window | 35.11 MiB | 13.30 MiB |
+| Estimated renderer allocation volume, one sampled run | 1.54 GB | 1.52 GB |
+
+The original save counts follow the original loops and region coordinates;
+the patched counts were observed with Linux inotify on successful final
+file renames. Every parent was written once in each patched warm/measured
+run. Larger batches can exceed the bounded cache and write a parent again
+after eviction.
+
+The two original worker CPU measurements were 14.25 and 15.37 CPU-s; the
+patched measurements were 10.81 and 11.66 CPU-s. These are per-thread
+`utime + stime` deltas at 100 Hz, including the final parent flush. Active
+wall sampling also includes `RenderBatch.close`; idle worker parking is
+excluded. Wall samples are separate from the CPU counters.
+
+Command-to-observed-idle times were 11.18/13.17 s before and 11.17/11.15 s
+after. They include scheduling and two-second status polling, so this is
+not a precise measurement of render wall time. The original JVM was
+long-lived; the patched JVM was restarted and given two warmup renders.
+There were no players and filesystem caches were not cleared.
+
+No RAM improvement is claimed. Peak process RSS averaged 4.81 GiB before
+and 5.81 GiB after; committed heap was 4.00 versus 5.23 GiB. The restart
+confounds this comparison. Estimated allocation volume barely changed.
+The queue bounds limit retained source references, not the whole server
+heap. There was no comparable per-run RSS growth in repeated patched runs.
+TPS remained 20.0, with maximum observed five-second tick-time reports of
+11.3/17.5 ms in the patched CPU runs; this does not characterize active
+player load.
+
+The baseline core was `9876e4b`; the renderer change is `adf332d`, packaged
+at `4a329a6` against the exact installed JAR. All other dependency and
+resource payloads were checked unchanged. The patched build is deployed,
+the renderer is idle, and the original background profiler resumed.
+The Pl3xMap config and `metro.json` checksums did not change. One MCA file
+changed during the graceful restart/save, but all 30 output files still
+matched both compressed bytes and decoded contents.
+
+Validation: 178 JDK-only contract assertions passed locally and in
+[CI](https://github.com/pluresque/Pl3xMap/actions/runs/42323913608), followed
+by full comparison of 3,932,160 RGBA pixels and 15,728,820 metadata bytes
+from the actual server render. Machine-readable results and individual
+measurements are in `benchmarks/render-parent-batch-comparison.json`.
+
+## Original baseline
 
 Measured on 2026-11-07 before server renderer changes. Server plugin
 `26.3-557`, core commit `9876e4b`. The deployed web changes do not modify
