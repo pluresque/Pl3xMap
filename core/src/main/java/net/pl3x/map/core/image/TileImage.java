@@ -56,13 +56,19 @@ public class TileImage extends Keyed {
     private final int[] pixels = new int[512 << 9];
 
     private final IO.Type io;
+    private final @Nullable FileWriteBatch<BufferedImage> parentWrites;
 
     private boolean written = false;
 
     public TileImage(String key, World world, Point region) {
+        this(key, world, region, null);
+    }
+
+    public TileImage(String key, World world, Point region, @Nullable FileWriteBatch<BufferedImage> parentWrites) {
         super(key);
         this.world = world;
         this.region = region;
+        this.parentWrites = parentWrites;
 
         this.io = IO.get(Config.WEB_TILE_FORMAT);
     }
@@ -94,6 +100,22 @@ public class TileImage extends Keyed {
                     this.region.x() >> zoom,
                     this.region.z() >> zoom,
                     this.io.getKey()));
+
+            // A parent is read and compressed once after its region patches have
+            // accumulated. Keep the base tile immediate for progressive updates.
+            if (zoom > 0 && this.parentWrites != null) {
+                final int level = zoom;
+                try {
+                    ReadWriteLock fileLock = FILE_LOCKS.computeIfAbsent(filePath, k -> new ReentrantReadWriteLock(true));
+                    this.parentWrites.update(filePath, (long) this.pixels.length * Integer.BYTES + 128,
+                            fileLock.writeLock(), () -> getBuffer(filePath),
+                            buffer -> writePixels(buffer, 512 >> level, level),
+                            buffer -> this.io.write(filePath, buffer));
+                } catch (Throwable t) {
+                    Logger.severe("Failed to queue parent tile at path %s".formatted(filePath), t);
+                }
+                continue;
+            }
 
             ReadWriteLock lock = FILE_LOCKS.computeIfAbsent(filePath, k -> new ReentrantReadWriteLock(true));
             lock.writeLock().lock();

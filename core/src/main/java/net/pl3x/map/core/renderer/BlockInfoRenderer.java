@@ -88,6 +88,20 @@ public class BlockInfoRenderer extends Renderer {
                     "pl3xmap.gz"));
 
             ReadWriteLock lock = FILE_LOCKS.computeIfAbsent(filePath, k -> new ReentrantReadWriteLock(true));
+            var batch = getRegionScanTask().getRenderBatch();
+            if (zoom > 0 && batch != null) {
+                ByteBuffer source = this.byteBuffer;
+                int capacity = source.capacity();
+                try {
+                    batch.blockInfo().update(filePath, (long) capacity + 128,
+                            lock.writeLock(), () -> readParent(filePath, capacity),
+                            buffer -> updateParent(buffer, source, region, step, size),
+                            buffer -> FileUtil.saveGzip(buffer.array(), filePath));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                continue;
+            }
             lock.writeLock().lock();
 
             Throwable error = null;
@@ -101,34 +115,8 @@ public class BlockInfoRenderer extends Renderer {
                 }
             } else {
                 try {
-                    // read existing data from disk
-                    ByteBuffer buffer = ByteBuffer.allocate(this.byteBuffer.capacity());
-                    if (Files.exists(filePath) && Files.size(filePath) > 0) {
-                        try {
-                            FileUtil.readGzip(filePath, buffer);
-                        } catch (Throwable ignore) {
-                            // silently fail - the file's fucked anyway so whatever
-                        }
-                    }
-
-                    // copy header
-                    for (int i = 0; i < 12; i++) {
-                        buffer.put(i, this.byteBuffer.get(i));
-                    }
-
-                    // write new data
-                    int baseX = (region.x() * size) & 511;
-                    int baseZ = (region.z() * size) & 511;
-                    for (int x = 0; x < 512; x += step) {
-                        for (int z = 0; z < 512; z += step) {
-                            int index = z * 512 + x;
-                            int packed = ByteUtil.getInt(this.byteBuffer, 12 + index * 4);
-                            int newIndex = (baseZ + (z / step)) * 512 + (baseX + (x / step));
-                            buffer.put(12 + newIndex * 4, ByteUtil.toBytes(packed));
-                        }
-                    }
-
-                    // finally, save data to disk
+                    ByteBuffer buffer = readParent(filePath, this.byteBuffer.capacity());
+                    updateParent(buffer, this.byteBuffer, region, step, size);
                     FileUtil.saveGzip(buffer.array(), filePath);
                 } catch (IOException e) {
                     error = e;
@@ -140,6 +128,32 @@ public class BlockInfoRenderer extends Renderer {
 
             if (error != null) {
                 throw new RuntimeException(error);
+            }
+        }
+    }
+
+    private static ByteBuffer readParent(Path path, int capacity) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(capacity);
+        if (Files.exists(path) && Files.size(path) > 0) {
+            try {
+                FileUtil.readGzip(path, buffer);
+            } catch (Throwable ignore) {
+                // Retain the existing recovery behavior for incomplete parent data.
+            }
+        }
+        return buffer;
+    }
+
+    private static void updateParent(ByteBuffer buffer, ByteBuffer source, Point region, int step, int size) {
+        for (int i = 0; i < 12; i++) buffer.put(i, source.get(i));
+        int baseX = (region.x() * size) & 511;
+        int baseZ = (region.z() * size) & 511;
+        for (int x = 0; x < 512; x += step) {
+            for (int z = 0; z < 512; z += step) {
+                int index = z * 512 + x;
+                int packed = ByteUtil.getInt(source, 12 + index * 4);
+                int newIndex = (baseZ + (z / step)) * 512 + (baseX + (x / step));
+                buffer.put(12 + newIndex * 4, ByteUtil.toBytes(packed));
             }
         }
     }

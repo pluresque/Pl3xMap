@@ -43,12 +43,18 @@ import org.jspecify.annotations.Nullable;
 public class RegionScanTask implements Runnable {
     private final World world;
     private final Point regionPos;
+    private final @Nullable RenderBatch renderBatch;
 
     private final Map<String, Renderer> renderers = new LinkedHashMap<>();
 
     public RegionScanTask(World world, Point regionPos) {
+        this(world, regionPos, null);
+    }
+
+    public RegionScanTask(World world, Point regionPos, @Nullable RenderBatch renderBatch) {
         this.world = world;
         this.regionPos = regionPos;
+        this.renderBatch = renderBatch;
 
         RendererRegistry registry = Pl3xMap.api().getRendererRegistry();
         List<Renderer.Builder> rendererBuilders = new ArrayList<>(this.world.getRenderers().values());
@@ -66,6 +72,10 @@ public class RegionScanTask implements Runnable {
 
     public World getWorld() {
         return this.world;
+    }
+
+    public @Nullable RenderBatch getRenderBatch() {
+        return this.renderBatch;
     }
 
     public @Nullable Renderer getRenderer(String id) {

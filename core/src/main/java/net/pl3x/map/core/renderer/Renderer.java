@@ -82,7 +82,8 @@ public abstract class Renderer extends Keyed {
     }
 
     public void allocateData(Point region) {
-        this.tileImage = new TileImage(getKey(), getWorld(), region);
+        var batch = getRegionScanTask().getRenderBatch();
+        this.tileImage = new TileImage(getKey(), getWorld(), region, batch == null ? null : batch.images());
     }
 
     public void saveData(Point region) {

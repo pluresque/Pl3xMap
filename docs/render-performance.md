@@ -51,3 +51,30 @@ Account separately for queue wait and the status polling interval.
 A bounded cache is required for a full-world render: coalescing a small
 benchmark must not retain unlimited tile or region buffers. Failure paths
 must drain other pending writes and leave file locks usable.
+
+## Parent write coalescing
+
+A `RenderBatch` scopes parent updates to the regions scheduled for one world.
+Base zoom-0 tiles retain immediate writes. Higher zooms queue the existing
+pixel and block-info patch operations and load the latest parent under its
+normal file lock when the queue is flushed. Downsampling, color conversion,
+PNG compression parameters and GZIP encoding remain unchanged.
+
+Each queue conservatively accounts for captured source buffers and evicts
+pending parent writes when its 32 MiB input budget is exceeded. Both queues
+are closed before the render progress becomes idle and before world cleanup.
+A failed parent write does not prevent other pending files from being drained.
+Callers outside a scheduled batch retain immediate-write behavior.
+
+Run the JDK-only cache contract checks with `scripts/test-tile-write-batch.sh`
+using JDK 25. They cover ordered coalescing, bounded retention, concurrent
+patches, file locks, deferred reads of the latest parent, failure recovery,
+ARGB pixel equivalence and decompressed block metadata equivalence.
+
+For a controlled comparison against an installed universal plugin, use
+`scripts/build-render-patch.py --base-jar ORIGINAL.jar --output PATCHED.jar`
+with JDK 25 on PATH. It compiles only the changed renderer classes against
+the exact original plugin, preserving all other dependency and resource
+contents. Signed input JARs are rejected. A JSON build manifest records the
+input checksum, commit and changed classes. A normal distribution build can
+still be produced using the repository's Gradle build.

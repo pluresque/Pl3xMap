@@ -35,6 +35,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.Executor;
+import java.io.IOException;
 import net.pl3x.map.core.Pl3xMap;
 import net.pl3x.map.core.configuration.Config;
 import net.pl3x.map.core.log.Logger;
@@ -209,12 +210,13 @@ public class RegionProcessor {
     }
 
     private void schedule(World world, List<Point> orderedRegionsToScan) {
+        RenderBatch batch = new RenderBatch();
         getProgress().setWorld(world);
         getProgress().setTotalRegions(orderedRegionsToScan.size());
         getProgress().setTotalChunks(getProgress().getTotalRegions() * 1024L);
 
         CompletableFuture.allOf(orderedRegionsToScan.stream()
-                .map(pos -> CompletableFuture.runAsync(new RegionScanTask(world, pos), Pl3xMap.api().getRenderExecutor())
+                .map(pos -> CompletableFuture.runAsync(new RegionScanTask(world, pos, batch), Pl3xMap.api().getRenderExecutor())
                         .whenComplete((result, throwable) -> {
                             if (throwable != null) {
                                 Logger.severe("Failed to run region scan task for %s".formatted(world.getName(), pos), throwable);
@@ -232,6 +234,14 @@ public class RegionProcessor {
         ).whenComplete((result, throwable) -> {
             if (throwable != null) {
                 Logger.severe("Failed to run region scan tasks for world %s".formatted(world.getName()), throwable);
+            }
+
+            // Parent files must be complete before reporting idle or releasing
+            // the region data referenced by their pending pixel patches.
+            try {
+                batch.close();
+            } catch (IOException e) {
+                Logger.severe("Failed to flush parent tiles for world %s".formatted(world.getName()), e);
             }
 
             // stop the progress tracker
