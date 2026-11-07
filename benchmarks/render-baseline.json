@@ -1,0 +1,167 @@
+{
+  "server_plugin": "26.3-557",
+  "server_commit": "9876e4b",
+  "date": "2026-11-07",
+  "logical_cpus": 4,
+  "render_workers": 2,
+  "world": "world",
+  "center": [
+    -768,
+    -768
+  ],
+  "radius_command": 512,
+  "region_coordinates": [
+    [
+      -3,
+      -3
+    ],
+    [
+      -3,
+      -2
+    ],
+    [
+      -3,
+      -1
+    ],
+    [
+      -2,
+      -3
+    ],
+    [
+      -2,
+      -2
+    ],
+    [
+      -2,
+      -1
+    ],
+    [
+      -1,
+      -3
+    ],
+    [
+      -1,
+      -2
+    ],
+    [
+      -1,
+      -1
+    ]
+  ],
+  "chunks": 9216,
+  "players": 0,
+  "image_format": "png",
+  "tile_quality": 0.0,
+  "biome_blend": 3,
+  "zoom_levels": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "runs": {
+    "idle": {
+      "duration_seconds": 29.23721671104431,
+      "cpu_mean_percent_one_core": 10.772720088962048,
+      "cpu_peak_percent_one_core": 14.815090560245723,
+      "cpu_mean_busy_samples_percent_one_core": null,
+      "busy_sample_seconds_approx": 0,
+      "host_iowait_mean_percent": 0.01750393838613688,
+      "vda_busy_peak_percent": 0.9920170562415139,
+      "rss_peak_mib": 4876.0234375,
+      "physical_read_mib": 0.23828125,
+      "physical_write_mib": 5.59765625,
+      "swap_in_pages": 70,
+      "swap_out_pages": 0
+    },
+    "render-cpu": {
+      "duration_seconds": 26.006132125854492,
+      "cpu_mean_percent_one_core": 62.738531165293466,
+      "cpu_peak_percent_one_core": 213.74688033493706,
+      "cpu_mean_busy_samples_percent_one_core": 176.90758701807403,
+      "busy_sample_seconds_approx": 8,
+      "host_iowait_mean_percent": 0.029688653532840035,
+      "vda_busy_peak_percent": 1.6010559172782943,
+      "rss_peak_mib": 4884.0390625,
+      "physical_read_mib": 0.89453125,
+      "physical_write_mib": 34.99609375,
+      "swap_in_pages": 258,
+      "swap_out_pages": 0,
+      "command_to_idle_seconds": 13.155997514724731,
+      "max_5s_reported_tick_ms": 12.0
+    },
+    "render-alloc": {
+      "duration_seconds": 26.003809928894043,
+      "cpu_mean_percent_one_core": 57.88054474782433,
+      "cpu_peak_percent_one_core": 215.7382575216606,
+      "cpu_mean_busy_samples_percent_one_core": 172.37476007293466,
+      "busy_sample_seconds_approx": 8,
+      "host_iowait_mean_percent": 0.029222816356544536,
+      "vda_busy_peak_percent": 1.5018729662937849,
+      "rss_peak_mib": 4885.15234375,
+      "physical_read_mib": 0.4453125,
+      "physical_write_mib": 35.0078125,
+      "swap_in_pages": 122,
+      "swap_out_pages": 0,
+      "command_to_idle_seconds": 13.155710935592651,
+      "max_5s_reported_tick_ms": 9.3
+    },
+    "render-cpu-repeat": {
+      "duration_seconds": 27.005205392837524,
+      "cpu_mean_percent_one_core": 68.28324601436496,
+      "cpu_peak_percent_one_core": 300.62750086147116,
+      "cpu_mean_busy_samples_percent_one_core": 201.5764551609336,
+      "busy_sample_seconds_approx": 8,
+      "host_iowait_mean_percent": 0.01901776537594875,
+      "vda_busy_peak_percent": 1.4981436920006868,
+      "rss_peak_mib": 4887.875,
+      "physical_read_mib": 0.64453125,
+      "physical_write_mib": 35.3046875,
+      "swap_in_pages": 169,
+      "swap_out_pages": 0,
+      "command_to_idle_seconds": 13.181032419204712,
+      "max_5s_reported_tick_ms": 12.5
+    }
+  },
+  "active_task_stages": [
+    {
+      "stage": "Load region / NBT / populate",
+      "sampled_ms": 8010.0,
+      "percent": 30.584192439862544
+    },
+    {
+      "stage": "PNG encoding",
+      "sampled_ms": 6925.0,
+      "percent": 26.441389843451702
+    },
+    {
+      "stage": "Scan / colors / lighting / biome blend",
+      "sampled_ms": 6090.0,
+      "percent": 23.253150057273768
+    },
+    {
+      "stage": "Block metadata gzip encoding",
+      "sampled_ms": 3615.0,
+      "percent": 13.802978235967927
+    },
+    {
+      "stage": "Other image/zoom read-write work",
+      "sampled_ms": 1530.0,
+      "percent": 5.841924398625429
+    },
+    {
+      "stage": "Allocate/read previous metadata",
+      "sampled_ms": 20.0,
+      "percent": 0.07636502481863307
+    }
+  ],
+  "worker_start_to_last_output_seconds": 7.8576366901397705,
+  "profiled_renderer_allocation_estimate_bytes": 1544028013.0,
+  "method": "Two 5 ms async all-thread execution profiles, one ~512 KiB allocation profile, per-second proc counters. Idle worker parking excluded from stage shares. Filesystem cache not cleared.",
+  "limitations": [
+    "No players online.",
+    "Original JVM was long-lived; future comparisons must account for JIT warmup.",
+    "Command completion observed with 2 second status polling.",
+    "Wall sampling stages can contain lock or I/O waits."
+  ]
+}
