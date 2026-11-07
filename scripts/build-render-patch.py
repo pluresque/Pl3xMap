@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build the renderer patch against an exact installed Pl3xMap JAR."""
 import argparse
+from copy import copy
 import hashlib
 import json
 import shutil
@@ -51,7 +52,7 @@ with tempfile.TemporaryDirectory(prefix='pl3x-render-build-') as temporary:
         staging = Path(temporary) / 'patched.jar'
         with ZipFile(staging, 'w') as patched:
             for entry in original.infolist():
-                patched.writestr(entry, replacements.pop(entry.filename, original.read(entry)))
+                patched.writestr(copy(entry), replacements.pop(entry.filename, original.read(entry)))
             for name, content in replacements.items():
                 patched.writestr(name, content)
         with ZipFile(staging) as patched:
