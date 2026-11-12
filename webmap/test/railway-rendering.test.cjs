@@ -29,9 +29,9 @@ function render() {
                 circles.push(marker);return marker;
             }},
         '../util/Util':{toLatLng:point=>point},
-        './MetroLabels':{MetroLabels:class {refresh(){}setSelection(){}}},
+        './MetroLabels':{MetroLabels:class {}},
         './MetroGeometry':load('src/metro/MetroGeometry.ts'),
-        './RailwayIcons':{railwayIcon(){}}
+        './RailwayIcons':{railwayCopyIcon(){}}
     });
     const layer = new MetroLayer(network);
     return {polylines,circles,layer};
@@ -57,32 +57,4 @@ test('hub markers are larger and unbuilt stations use a dashed outline',()=>{
     assert.ok(circles[0].options.radius>circles[2].options.radius);
     assert.equal(circles[3].options.dashArray,'4 3');
     assert.equal(circles[3].options.fillOpacity,0.25);
-});
-
-
-test('selecting a route dims context without hiding the network',()=>{
-    const {polylines,layer}=render();
-    layer.setSelection('hubs');
-    assert.ok(polylines.find(line=>line.options.color==='#e05252').options.opacity>0.8);
-    assert.equal(polylines.find(line=>line.options.color==='#e98fb6').options.opacity,0.16);
-    assert.equal(layer.isLineVisible('pink-branch'),true);
-    layer.setSelection();
-    assert.equal(polylines.find(line=>line.options.color==='#e98fb6').options.opacity,1);
-});
-
-test('hiding the selected route clears selection and restores other routes',()=>{
-    const {polylines,layer}=render();
-    let cleared=0;layer.on('selectionclear',()=>cleared++);
-    layer.setSelection('hubs');
-    layer.setLineVisible('hubs',false);
-    assert.equal(cleared,1);
-    assert.equal(layer.isLineVisible('hubs'),false);
-    assert.equal(polylines.find(line=>line.options.color==='#e98fb6').options.opacity,1);
-});
-
-test('map route clicks identify the correct route',()=>{
-    const {layer}=render();
-    let selected;layer.on('routeselect',event=>selected=event.id);
-    layer.layers[0].fire('click');
-    assert.equal(selected,'hubs');
 });

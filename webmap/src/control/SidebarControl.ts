@@ -4,7 +4,6 @@ import Pl3xMapLeafletMap from "../map/Pl3xMapLeafletMap";
 import LayersTab from "../sidebar/LayersTab";
 import PlayersTab from "../sidebar/PlayersTab";
 import WorldsTab from "../sidebar/WorldsTab";
-import MetroTab from "../sidebar/MetroTab";
 
 export interface SidebarTab {
     get button(): HTMLElement;
@@ -45,7 +44,6 @@ export default class SidebarControl extends L.Control {
         this.addTab(new WorldsTab(pl3xmap));
         this.addTab(new LayersTab(pl3xmap));
         this.addTab(new PlayersTab(pl3xmap));
-        this.addTab(new MetroTab(pl3xmap));
         //this.addTab(new MarkersTab(pl3xmap));
     }
 

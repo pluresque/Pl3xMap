@@ -2,7 +2,11 @@ import * as L from "leaflet";
 import {Pl3xMap} from "../Pl3xMap";
 import {SidebarTab} from "../control/SidebarControl";
 import {MarkerLayer} from "../layergroup/MarkerLayer";
+import {MetroLayer} from "../metro/MetroLayer";
+import {MetroNetwork, parseMetroConfig} from "../metro/MetroNetwork";
+import {parsePreferences, RailwayPreferences} from "../metro/RailwayPreferences";
 import {createSVGIcon} from "../util/Util";
+import {World} from "../world/World";
 import '../svg/layers.svg';
 
 interface LayerControlInput extends HTMLInputElement {
@@ -30,6 +34,10 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
     protected _skeleton: HTMLParagraphElement = L.DomUtil.create('p');
     protected _container: HTMLDivElement = L.DomUtil.create('div');
     protected _list: HTMLFieldSetElement = L.DomUtil.create('fieldset', 'menu');
+    private readonly _railwayNetworks: Promise<Map<string, MetroNetwork>>;
+    private readonly _railwayPreferences: RailwayPreferences;
+    private _railway?: MetroLayer;
+    private _worldSelection = 0;
 
     constructor(pl3xmap: Pl3xMap) {
         super({}, {}, {
@@ -49,6 +57,17 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
         });
 
         this._pl3xmap = pl3xmap;
+        let saved: string | null = null;
+        try { saved = localStorage.getItem('pl3xmap.railway.preferences'); } catch { /* storage is optional */ }
+        this._railwayPreferences = parsePreferences(saved);
+        this._railwayNetworks = fetch('metro.json', {cache: 'no-cache'}).then(async response => {
+            if (response.status === 404) return new Map<string, MetroNetwork>();
+            if (!response.ok) throw new Error(`Railway configuration: HTTP ${response.status}`);
+            return parseMetroConfig(await response.json());
+        }).catch(error => {
+            console.warn('Could not load metro.json', error);
+            return new Map<string, MetroNetwork>();
+        });
 
         this._button.type = 'button';
         this._button.setAttribute('aria-expanded', 'false');
@@ -81,10 +100,32 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
             this._update();
         });
 
-        window.addEventListener('worldselected', (): void => {
+        window.addEventListener('worldselected', (e: CustomEvent<World>): void => {
+            if (this._railway) {
+                this.removeLayer(this._railway);
+                this._railway.remove();
+                this._railway = undefined;
+            }
             this._layers = [];
             this._update();
+            void this.loadRailway(e.detail.name, ++this._worldSelection);
         });
+    }
+
+    private async loadRailway(world: string, selection: number): Promise<void> {
+        const network = (await this._railwayNetworks).get(world);
+        if (selection !== this._worldSelection || !network?.lines.length) return;
+
+        const railway = this._railway = new MetroLayer(network);
+        railway.setLabelsVisible(this._railwayPreferences.labels);
+        if (this._railwayPreferences.visible) railway.addTo(this._map);
+        this.addOverlay(railway, network.label);
+    }
+
+    private saveRailwayPreferences(): void {
+        try {
+            localStorage.setItem('pl3xmap.railway.preferences', JSON.stringify(this._railwayPreferences));
+        } catch { /* storage is optional */ }
     }
 
     private _initLayout(): void {
@@ -96,8 +137,7 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
         this._skeleton.id = 'layers-skeleton';
         this._skeleton.tabIndex = -1;
 
-        this._list.setAttribute('aria-labelledby', 'overlay-layers-heading');
-        this._list.setAttribute('role', 'listbox');
+        this._list.setAttribute('aria-labelledby', heading.id);
 
         this._container.appendChild(this._list);
 
@@ -137,15 +177,39 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
 
         this._layerControlInputs.push(input);
 
-        L.DomEvent.on(input, 'click', this._onInputClick, this);
+        const railway = layer.layer;
+        if (railway instanceof MetroLayer) {
+            L.DomEvent.on(input, 'click', (event: Event): void => {
+                this._onInputClick(event);
+                this._railwayPreferences.visible = this._map.hasLayer(railway);
+                this.saveRailwayPreferences();
+            });
+        } else {
+            L.DomEvent.on(input, 'click', this._onInputClick, this);
+        }
 
         label.innerText = layer.name;
 
         this._list.appendChild(input);
         this._list.appendChild(label);
+        if (railway instanceof MetroLayer) this.addRailwayLabelToggle(railway);
 
         this._checkDisabledLayers();
         return label;
+    }
+
+    private addRailwayLabelToggle(railway: MetroLayer): void {
+        const input = L.DomUtil.create('input', 'railway-labels', this._list);
+        const label = L.DomUtil.create('label', '', this._list);
+        input.type = 'checkbox';
+        input.id = label.htmlFor = 'railway-station-labels';
+        input.checked = this._railwayPreferences.labels;
+        label.textContent = 'Названия станций';
+        input.addEventListener('change', () => {
+            this._railwayPreferences.labels = input.checked;
+            railway.setLabelsVisible(input.checked);
+            this.saveRailwayPreferences();
+        });
     }
 
     expand(): this {

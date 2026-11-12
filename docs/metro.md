@@ -17,7 +17,7 @@ bundle will not overwrite an existing network. Keep a separate backup of it.
 - `worlds` uses the same world keys as `tiles/settings.json` (for example `world`
   or `world_nether`). Coordinates are local to that world; Nether coordinates
   are not multiplied by eight.
-- Each world's `label` names its metro tab.
+- Each world's `label` names its railway overlay in the Layers tab.
 - `stations` contains unique `id`, `name`, `x`, `z`, and optional `y` fields.
 - `lines` contains unique `id`, `name`, six-digit hex `color`, `points`, and
   `stations` fields.
@@ -37,14 +37,14 @@ bundle will not overwrite an existing network. Keep a separate backup of it.
   multiple lines for an interchange. For a circular line, close the geometry by
   repeating its first point; list each station only once.
 
-Only configured worlds with at least one line display the metro tab. Missing
-`metro.json` is supported. Invalid configuration disables the overlay and logs
-an explanation in the browser console. The file is fetched once per page load;
-reload the browser after editing it. There is no continuous metro polling.
+Worlds with a configured network show the railway overlay in the Layers tab.
+The railway and station labels start enabled. The browser remembers both
+checkboxes, including the label preference saved by the earlier railway tab.
+Click a station to see its coordinates. At distant zoom levels the labels
+appear on hover when enabled.
 
-Line checkboxes hide routes and their exclusive stations. Shared stations remain
-visible while any serving line is enabled. Clicking a station enables its lines,
-centers the map and shows its coordinates. Station labels can be disabled.
+The viewer fetches `metro.json` once per page load. A missing file leaves the
+Layers tab available. Invalid configuration is reported in the browser console.
 
 ## Build and verification
 
