@@ -42,7 +42,7 @@ export default class SidebarControl extends L.Control {
         L.DomEvent.disableScrollPropagation(this._container);
 
         this.addTab(new WorldsTab(pl3xmap));
-        this.addTab(new LayersTab(pl3xmap));
+        this.addTab(new LayersTab());
         this.addTab(new PlayersTab(pl3xmap));
         //this.addTab(new MarkersTab(pl3xmap));
     }

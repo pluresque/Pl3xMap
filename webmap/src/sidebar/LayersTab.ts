@@ -1,5 +1,4 @@
 import * as L from "leaflet";
-import {Pl3xMap} from "../Pl3xMap";
 import {SidebarTab} from "../control/SidebarControl";
 import {MarkerLayer} from "../layergroup/MarkerLayer";
 import {MetroLayer} from "../metro/MetroLayer";
@@ -8,6 +7,12 @@ import {parsePreferences, RailwayPreferences} from "../metro/RailwayPreferences"
 import {createSVGIcon} from "../util/Util";
 import {World} from "../world/World";
 import '../svg/layers.svg';
+
+const LAYERS_LABEL = 'Слои';
+const LAYER_NAMES = new Map([
+    ['pl3xmap_players', 'Игроки'],
+    ['pl3xmap_spawn', 'Спавн'],
+]);
 
 interface LayerControlInput extends HTMLInputElement {
     layerId: number;
@@ -27,7 +32,6 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
     declare protected _onInputClick: (e: Event) => void;
     declare protected _checkDisabledLayers: () => void;
 
-    protected _pl3xmap: Pl3xMap;
     protected _button: HTMLButtonElement = L.DomUtil.create('button');
     protected _content: HTMLDivElement = L.DomUtil.create('div');
 
@@ -39,7 +43,7 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
     private _railway?: MetroLayer;
     private _worldSelection = 0;
 
-    constructor(pl3xmap: Pl3xMap) {
+    constructor() {
         super({}, {}, {
             hideSingleBase: true,
             sortLayers: true,
@@ -49,14 +53,11 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
                     if (diff !== 0) {
                         return diff;
                     }
-                    name1 = layer1.label;
-                    name2 = layer2.label;
                 }
-                return name1 < name2 ? -1 : (name2 < name1 ? 1 : 0);
+                return name1.localeCompare(name2, 'ru');
             }
         });
 
-        this._pl3xmap = pl3xmap;
         let saved: string | null = null;
         try { saved = localStorage.getItem('pl3xmap.railway.preferences'); } catch { /* storage is optional */ }
         this._railwayPreferences = parsePreferences(saved);
@@ -73,8 +74,8 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
         this._button.setAttribute('aria-expanded', 'false');
         this._button.setAttribute('aria-controls', `sidebar__layers`);
         this._button.appendChild(createSVGIcon('layers'));
-        this._button.setAttribute('aria-label', pl3xmap.settings!.lang.layers.label);
-        this._button.title = pl3xmap.settings!.lang.layers.label;
+        this._button.setAttribute('aria-label', LAYERS_LABEL);
+        this._button.title = LAYERS_LABEL;
 
         this._content.hidden = true;
         this._content.id = `sidebar__layers`;
@@ -87,7 +88,7 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
         window.addEventListener('overlayadded', (e: CustomEvent<MarkerLayer>): void => {
             if (e.detail.key === 'pl3xmap_worldborder') return;
             if (e.detail.showControls) {
-                const label = e.detail.label === 'Важные места' ? 'Important Places' : e.detail.label;
+                const label = LAYER_NAMES.get(e.detail.key) ?? e.detail.label;
                 this.addOverlay(e.detail, label);
             }
             if (!e.detail.defaultHidden) {
@@ -131,10 +132,10 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
 
     private _initLayout(): void {
         const heading: HTMLHeadingElement = L.DomUtil.create('h2', '', this._content);
-        heading.innerText = this._pl3xmap.settings!.lang.layers.label;
+        heading.innerText = LAYERS_LABEL;
         heading.id = 'layers-heading';
 
-        this._skeleton.innerText = this._pl3xmap.settings!.lang.layers.value;
+        this._skeleton.innerText = 'Нет доступных слоёв.';
         this._skeleton.id = 'layers-skeleton';
         this._skeleton.tabIndex = -1;
 
