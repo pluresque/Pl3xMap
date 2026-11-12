@@ -85,8 +85,10 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
 
     private initEvents(): void {
         window.addEventListener('overlayadded', (e: CustomEvent<MarkerLayer>): void => {
+            if (e.detail.key === 'pl3xmap_worldborder') return;
             if (e.detail.showControls) {
-                this.addOverlay(e.detail, e.detail.label);
+                const label = e.detail.label === 'Важные места' ? 'Important Places' : e.detail.label;
+                this.addOverlay(e.detail, label);
             }
             if (!e.detail.defaultHidden) {
                 e.detail.addTo(this._map);
@@ -117,7 +119,6 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
         if (selection !== this._worldSelection || !network?.lines.length) return;
 
         const railway = this._railway = new MetroLayer(network);
-        railway.setLabelsVisible(this._railwayPreferences.labels);
         if (this._railwayPreferences.visible) railway.addTo(this._map);
         this.addOverlay(railway, network.label);
     }
@@ -192,24 +193,9 @@ export default class LayersTab extends L.Control.Layers implements SidebarTab {
 
         this._list.appendChild(input);
         this._list.appendChild(label);
-        if (railway instanceof MetroLayer) this.addRailwayLabelToggle(railway);
 
         this._checkDisabledLayers();
         return label;
-    }
-
-    private addRailwayLabelToggle(railway: MetroLayer): void {
-        const input = L.DomUtil.create('input', 'railway-labels', this._list);
-        const label = L.DomUtil.create('label', '', this._list);
-        input.type = 'checkbox';
-        input.id = label.htmlFor = 'railway-station-labels';
-        input.checked = this._railwayPreferences.labels;
-        label.textContent = 'Названия станций';
-        input.addEventListener('change', () => {
-            this._railwayPreferences.labels = input.checked;
-            railway.setLabelsVisible(input.checked);
-            this.saveRailwayPreferences();
-        });
     }
 
     expand(): this {

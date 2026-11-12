@@ -38,10 +38,8 @@ bundle will not overwrite an existing network. Keep a separate backup of it.
   repeating its first point; list each station only once.
 
 Worlds with a configured network show the railway overlay in the Layers tab.
-The railway and station labels start enabled. The browser remembers both
-checkboxes, including the label preference saved by the earlier railway tab.
-Click a station to see its coordinates. At distant zoom levels the labels
-appear on hover when enabled.
+The railway starts enabled and the browser remembers the layer checkbox.
+Hover over a station to see its name, or click it for its coordinates.
 
 The viewer fetches `metro.json` once per page load. A missing file leaves the
 Layers tab available. Invalid configuration is reported in the browser console.

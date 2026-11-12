@@ -1,5 +1,3 @@
-.menu .railway-labels + label { margin-left: 1rem; }
-
 .leaflet-tooltip.metro-station-label, .leaflet-tooltip.railway-route-tooltip {
   background: #0d1826ef;
   color: #e9f2ff;
@@ -15,7 +13,6 @@
   text-overflow: ellipsis;
   &::before { display: none; }
 }
-.leaflet-tooltip.metro-station-label { visibility: hidden; }
 
 .railway-popup {
   .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #102034; color: #e5edf8; border-radius: 12px; }

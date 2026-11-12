@@ -1,13 +1,10 @@
 import * as L from 'leaflet';
 import {MetroNetwork} from './MetroNetwork';
 import {toLatLng} from '../util/Util';
-import {MetroLabels} from './MetroLabels';
 import {railwayCopyIcon} from './RailwayIcons';
 import {roundRoute} from './MetroGeometry';
 
 export class MetroLayer extends L.FeatureGroup {
-    private readonly _labels: MetroLabels;
-
     constructor(network: MetroNetwork) {
         super();
         const visibleLines = network.lines.filter(line => !line.defaultHidden);
@@ -29,7 +26,6 @@ export class MetroLayer extends L.FeatureGroup {
         }
         const visibleStations = new Set(visibleLines.flatMap(line => line.stations));
         const stations = network.stations.filter(station => visibleStations.has(station.id));
-        const markers = new Map<string, L.CircleMarker>();
         for (const station of stations) {
             const lines = visibleLines.filter(line => line.stations.includes(station.id));
             const marker = L.circleMarker(toLatLng([station.x, station.z]), {
@@ -80,28 +76,10 @@ export class MetroLayer extends L.FeatureGroup {
                 return content;
             }, {className: 'railway-popup', maxWidth: 280});
             marker.bindTooltip(() => this.label(station.name + (station.planned ? ' · план' : '')), {
-                permanent: true, direction: 'right', offset: [10, 0], className: 'metro-station-label'
+                direction: 'auto', offset: [8, 0], className: 'metro-station-label'
             });
-            markers.set(station.id, marker);
             this.addLayer(marker);
         }
-        this._labels = new MetroLabels(stations, markers);
-    }
-
-    onAdd(map: L.Map): this {
-        super.onAdd(map);
-        this._labels.addTo(map);
-        return this;
-    }
-
-    onRemove(map: L.Map): this {
-        this._labels.remove();
-        super.onRemove(map);
-        return this;
-    }
-
-    setLabelsVisible(visible: boolean): void {
-        this._labels.setVisible(visible);
     }
 
     private label(text: string): HTMLElement {

@@ -25,11 +25,10 @@ function render() {
     const {MetroLayer} = load('src/metro/MetroLayer.ts',{
         leaflet:{FeatureGroup:Group,featureGroup:layers=>new Group(layers),polyline:stroke,
             circleMarker(point,options) {
-                const marker={point,options,bindPopup(){return this;},bindTooltip(){return this;},setStyle(style){Object.assign(this.options,style);return this;}};
+                const marker={point,options,bindPopup(){return this;},bindTooltip(_label, tooltip){this.tooltip=tooltip;return this;}};
                 circles.push(marker);return marker;
             }},
         '../util/Util':{toLatLng:point=>point},
-        './MetroLabels':{MetroLabels:class {}},
         './MetroGeometry':load('src/metro/MetroGeometry.ts'),
         './RailwayIcons':{railwayCopyIcon(){}}
     });
@@ -57,4 +56,13 @@ test('hub markers are larger and unbuilt stations use a dashed outline',()=>{
     assert.ok(circles[0].options.radius>circles[2].options.radius);
     assert.equal(circles[3].options.dashArray,'4 3');
     assert.equal(circles[3].options.fillOpacity,0.25);
+});
+
+test('station names are available as hover tooltips at every zoom', () => {
+    const {circles} = render();
+    assert.ok(circles.length > 0);
+    for (const marker of circles) {
+        assert.equal(marker.tooltip.className, 'metro-station-label');
+        assert.notEqual(marker.tooltip.permanent, true);
+    }
 });
